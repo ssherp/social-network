@@ -2,7 +2,7 @@ const { ObjectId } = require('mongoose').Types;
 const { User, Thought } = require('../models');
 
 module.exports = {
-  // Get all students
+  // Get all Users
   async getUsers(req, res) {
     try {
       const users = await User.find();
@@ -18,18 +18,18 @@ module.exports = {
       return res.status(500).json(err);
     }
   },
-  // Get a single student
+  // Get a single User
   async getSingleUser(req, res) {
     try {
-      const User = await User.findOne({ _id: req.params.UserId })
+      const user = await User.findOne({ _id: req.params.UserId })
         .select('-__v');
 
-      if (!User) {
+      if (user) {
         return res.status(404).json({ message: 'No User with that ID' })
       }
 
       res.json({
-        User,
+        user,
         grade: await grade(req.params.UserId),
       });
     } catch (err) {
@@ -46,73 +46,73 @@ module.exports = {
       res.status(500).json(err);
     }
   },
-  // Delete a User and remove them from the course
-  async deleteStudent(req, res) {
+  // Delete a User and remove them from the Thought
+  async deleteUser(req, res) {
     try {
-      const student = await Student.findOneAndRemove({ _id: req.params.studentId });
+      const user = await User.findOneAndRemove({ _id: req.params.userId });
 
-      if (!student) {
-        return res.status(404).json({ message: 'No such student exists' });
+      if (!user) {
+        return res.status(404).json({ message: 'No such User exists' });
       }
 
-      const course = await Course.findOneAndUpdate(
-        { students: req.params.studentId },
-        { $pull: { students: req.params.studentId } },
+      const thought = await Thought.findOneAndUpdate(
+        { Users: req.params.userId },
+        { $pull: { Users: req.params.userId } },
         { new: true }
       );
 
-      if (!course) {
+      if (!thought) {
         return res.status(404).json({
-          message: 'Student deleted, but no courses found',
+          message: 'User deleted, but no Thoughts found',
         });
       }
 
-      res.json({ message: 'Student successfully deleted' });
+      res.json({ message: 'User successfully deleted' });
     } catch (err) {
       console.log(err);
       res.status(500).json(err);
     }
   },
 
-  // Add an assignment to a student
-  async addAssignment(req, res) {
-    console.log('You are adding an assignment');
+  // Add an Reaction to a User
+  async addReaction(req, res) {
+    console.log('You are adding an reaction');
     console.log(req.body);
 
     try {
-      const student = await Student.findOneAndUpdate(
-        { _id: req.params.studentId },
-        { $addToSet: { assignments: req.body } },
+      const user = await User.findOneAndUpdate(
+        { _id: req.params.userId },
+        { $addToSet: { reactions: req.body } },
         { runValidators: true, new: true }
       );
 
-      if (!student) {
+      if (!user) {
         return res
           .status(404)
-          .json({ message: 'No student found with that ID :(' });
+          .json({ message: 'No User found with that ID :(' });
       }
 
-      res.json(student);
+      res.json(user);
     } catch (err) {
       res.status(500).json(err);
     }
   },
-  // Remove assignment from a student
-  async removeAssignment(req, res) {
+  // Remove Reaction from a User
+  async removeReaction(req, res) {
     try {
-      const student = await Student.findOneAndUpdate(
-        { _id: req.params.studentId },
-        { $pull: { assignment: { assignmentId: req.params.assignmentId } } },
+      const User = await User.findOneAndUpdate(
+        { _id: req.params.userId },
+        { $pull: { Reaction: { ReactionId: req.params.reactionId } } },
         { runValidators: true, new: true }
       );
 
-      if (!student) {
+      if (!user) {
         return res
           .status(404)
-          .json({ message: 'No student found with that ID :(' });
+          .json({ message: 'No User found with that ID :(' });
       }
 
-      res.json(student);
+      res.json(user);
     } catch (err) {
       res.status(500).json(err);
     }
