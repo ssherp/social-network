@@ -6,12 +6,6 @@ module.exports = {
   async getUsers(req, res) {
     try {
       const users = await User.find();
-
-      const userObj = {
-        users,
-        headCount: await headCount(),
-      };
-
       res.json(userObj);
     } catch (err) {
       console.log(err);
@@ -24,14 +18,11 @@ module.exports = {
       const user = await User.findOne({ _id: req.params.UserId })
         .select('-__v');
 
-      if (user) {
-        return res.status(404).json({ message: 'No User with that ID' })
-      }
-
-      res.json({
-        user,
-        grade: await grade(req.params.UserId),
-      });
+        if (!user) {
+          return res.status(404).json({ message: 'No user with that ID' })
+        }
+  
+        res.json(user);
     } catch (err) {
       console.log(err);
       return res.status(500).json(err);
@@ -56,8 +47,8 @@ module.exports = {
       }
 
       const thought = await Thought.findOneAndUpdate(
-        { Users: req.params.userId },
-        { $pull: { Users: req.params.userId } },
+        { users: req.params.userId },
+        { $pull: { users: req.params.userId } },
         { new: true }
       );
 
@@ -74,15 +65,29 @@ module.exports = {
     }
   },
 
-  // Add an Reaction to a User
-  async addReaction(req, res) {
-    console.log('You are adding an reaction');
+async updateUser(req,res){
+  try{
+    const user = User.updateOne({_id:req.params.userId},req.body);
+    if (!user) {
+      return res.status(404).json({ message: 'No such User exists' });
+    }
+    res.json({message:"user updated "})
+  }
+  catch (err) {
+    console.log(err);
+    res.status(500).json(err);
+  }
+},
+
+  // Add an Friend to a User
+  async addFriend(req, res) {
+    console.log('You are adding an friend');
     console.log(req.body);
 
     try {
       const user = await User.findOneAndUpdate(
         { _id: req.params.userId },
-        { $addToSet: { reactions: req.body } },
+        { $addToSet: { friends: req.body } },
         { runValidators: true, new: true }
       );
 
@@ -97,12 +102,12 @@ module.exports = {
       res.status(500).json(err);
     }
   },
-  // Remove Reaction from a User
-  async removeReaction(req, res) {
+  // Remove Friend from a User
+  async removeFriend(req, res) {
     try {
-      const User = await User.findOneAndUpdate(
+      const user = await User.findOneAndUpdate(
         { _id: req.params.userId },
-        { $pull: { Reaction: { ReactionId: req.params.reactionId } } },
+        { $pull: { friends: { friendId: req.params.friendId } } },
         { runValidators: true, new: true }
       );
 

@@ -1,5 +1,5 @@
 const { Schema, model } = require('mongoose');
-
+const reactionSchema=require("./Reaction")
 // Schema to create a course model
 const thoughtSchema = new Schema(
   {
@@ -13,6 +13,7 @@ const thoughtSchema = new Schema(
     createdAt: {
       type: Date,
       default: Date.now(),
+      get:(date)=>date.toLocaleDateString()
     },
     endDate: {
       type: Date,
@@ -25,7 +26,7 @@ const thoughtSchema = new Schema(
         required: true,
       },
     ],
-    reaction: [reactionSchema]
+    reactions: [reactionSchema]
   },
   {
     toJSON: {
@@ -34,7 +35,12 @@ const thoughtSchema = new Schema(
     id: false,
   }
 );
-
+thoughtSchema
+  .virtual('reactionCount')
+  // Getter
+  .get(function () {
+    return `${this.reactions.length}`;
+  })
 const Thought = model('thought', thoughtSchema);
 
 module.exports = Thought;
