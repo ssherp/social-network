@@ -15,11 +15,7 @@ const thoughtSchema = new Schema(
       default: Date.now(),
       get:(date)=>date.toLocaleDateString()
     },
-    endDate: {
-      type: Date,
-      // Sets a default value of 12 weeks from now
-      default: () => new Date(+new Date() + 84 * 24 * 60 * 60 * 1000),
-    },
+    
     username: [
       {
         type: String,
@@ -28,8 +24,9 @@ const thoughtSchema = new Schema(
     ],
     reactions: [reactionSchema]
   },
-  {
+  {  
     toJSON: {
+      getters: true,
       virtuals: true,
     },
     id: false,
@@ -41,6 +38,6 @@ thoughtSchema
   .get(function () {
     return `${this.reactions.length}`;
   })
-const Thought = model('thought', thoughtSchema);
+const Thought = model('Thought', thoughtSchema);
 
 module.exports = Thought;
