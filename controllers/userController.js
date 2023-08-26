@@ -1,4 +1,3 @@
-const { ObjectId } = require('mongoose').Types;
 const { User, Thought } = require('../models');
 
 module.exports = {
@@ -15,13 +14,12 @@ module.exports = {
   // Get a single User
   async getSingleUser(req, res) {
     try {
-      const user = await User.findOne({ _id: req.params.UserId })
-        .select('-__v');
-
+      const user = await User.findOne({ _id: req.params.userId })
+        console.log(user)
+        .select('-__v').populate('friends').populate('thoughts')
         if (!user) {
           return res.status(404).json({ message: 'No user with that ID' })
-        }
-  
+        } 
         res.json(user);
     } catch (err) {
       console.log(err);
@@ -66,17 +64,21 @@ module.exports = {
   },
 
 async updateUser(req,res){
-  try{
-    const user = User.updateOne({_id:req.params.userId},req.body);
+   try{
+    const user = await User.findOneAndUpdate(
+      { _id: req.params.userId },
+      { $set: req.body },
+      { runValidators: true, new: true })
+    console.log(user)
     if (!user) {
       return res.status(404).json({ message: 'No such User exists' });
     }
     res.json({message:"user updated "})
   }
-  catch (err) {
-    console.log(err);
-    res.status(500).json(err);
-  }
+   catch (err) {
+   console.log(err);
+     res.status(500).json(err);
+   }
 },
 
   // Add an Friend to a User
@@ -87,7 +89,7 @@ async updateUser(req,res){
     try {
       const user = await User.findOneAndUpdate(
         { _id: req.params.userId },
-        { $addToSet: { friends: req.body } },
+        { $addToSet: { friends: req.params.friendId } },
         { runValidators: true, new: true }
       );
 
@@ -107,7 +109,7 @@ async updateUser(req,res){
     try {
       const user = await User.findOneAndUpdate(
         { _id: req.params.userId },
-        { $pull: { friends: { friendId: req.params.friendId } } },
+        { $pull: { friends: { _id: req.params.friendId } } },
         { runValidators: true, new: true }
       );
 
