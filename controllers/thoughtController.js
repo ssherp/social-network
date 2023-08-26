@@ -13,7 +13,7 @@ module.exports = {
   // Get a Thought
   async getSingleThought(req, res) {
     try {
-      const thought = await Thought.findOne({ _id: req.params.ThoughtId })
+      const thought = await Thought.findOne({ _id: req.params.thoughtId })
 
       if (!thought) {
         return res.status(404).json({ message: 'No Thought with that ID' });
@@ -30,7 +30,7 @@ module.exports = {
       const thought = await Thought.create(req.body);
       const user = await User.findOneAndUpdate(
         { _id: req.body.userId },
-        { $addToSet: { thought: thought._id } },
+        { $addToSet: { thoughts: thought._id } },
         { new: true }
       );
       if (!user) {
@@ -48,7 +48,7 @@ module.exports = {
   // Delete a Thought
   async deleteThought(req, res) {
     try {
-      const thought = await Thought.findOneAndDelete({ _id: req.params.thoughtId });
+      const thought = await Thought.findOneAndRemove({ _id: req.params.thoughtId });
 
       if (!thought) {
         res.status(404).json({ message: 'No Thought with that ID' });

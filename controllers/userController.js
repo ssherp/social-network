@@ -14,9 +14,10 @@ module.exports = {
   // Get a single User
   async getSingleUser(req, res) {
     try {
-      const user = await User.findOne({ _id: req.params.userId })
-        console.log(user)
-        .select('-__v').populate('friends').populate('thoughts')
+      const user = await User.findOne({ _id: req.params.userId})
+
+      .populate("friends")
+      .populate("thoughts");
         if (!user) {
           return res.status(404).json({ message: 'No user with that ID' })
         } 
@@ -107,9 +108,10 @@ async updateUser(req,res){
   // Remove Friend from a User
   async removeFriend(req, res) {
     try {
+      
       const user = await User.findOneAndUpdate(
         { _id: req.params.userId },
-        { $pull: { friends: { _id: req.params.friendId } } },
+        { $pull: { friends: req.params.friendId}},
         { runValidators: true, new: true }
       );
 
