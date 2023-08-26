@@ -14,7 +14,6 @@ module.exports = {
   async getSingleThought(req, res) {
     try {
       const thought = await Thought.findOne({ _id: req.params.ThoughtId })
-        .select('-__v');
 
       if (!thought) {
         return res.status(404).json({ message: 'No Thought with that ID' });
@@ -29,10 +28,21 @@ module.exports = {
   async createThought(req, res) {
     try {
       const thought = await Thought.create(req.body);
-      res.json(thought);
+      const user = await User.findOneAndUpdate(
+        { _id: req.body.userId },
+        { $addToSet: { thought: thought._id } },
+        { new: true }
+      );
+      if (!user) {
+        return res.status(404).json({
+          message: 'Application created, but found no user with that ID',
+        })
+      }
+
+      res.json('Created the application 🎉');
     } catch (err) {
       console.log(err);
-      return res.status(500).json(err);
+      res.status(500).json(err);
     }
   },
   // Delete a Thought
@@ -43,9 +53,19 @@ module.exports = {
       if (!thought) {
         res.status(404).json({ message: 'No Thought with that ID' });
       }
+      const user = await User.findOneAndUpdate(
+        { thought: req.params.thoughtId },
+        { $pull: { thoughts: req.params.thoughtId } },
+        { new: true }
+      );
 
-      await User.deleteMany({ _id: { $in: Thought.Users } });
-      res.json({ message: 'Thought and users deleted!' });
+      if (!user) {
+        return res.status(404).json({
+          message: 'thought created but no user with this id!',
+        });
+      }
+
+      res.json({ message: 'thought successfully deleted!' });
     } catch (err) {
       res.status(500).json(err);
     }
