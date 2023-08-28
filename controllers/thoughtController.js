@@ -54,14 +54,14 @@ module.exports = {
         res.status(404).json({ message: 'No Thought with that ID' });
       }
       const user = await User.findOneAndUpdate(
-        { thought: req.params.thoughtId },
+        { _id: req.body.userId },
         { $pull: { thoughts: req.params.thoughtId } },
         { new: true }
       );
 
       if (!user) {
         return res.status(404).json({
-          message: 'thought created but no user with this id!',
+          message: 'thought deleted but no user with this id!',
         });
       }
 
@@ -113,9 +113,9 @@ module.exports = {
     try {
       const thought = await Thought.findOneAndUpdate(
         { _id: req.params.thoughtId },
-        { $pull: { reactions: req.params.reactionId }},
+        { $pull: {reactions: {reactionId:req.params.reactionId }}},
         { runValidators: true, new: true }
-      )
+      );
 
       if (!thought) {
         return res.status(404).json({ message: 'No thought with this id!' });
