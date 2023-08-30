@@ -34,7 +34,7 @@ To get started with this project, follow the steps below:
 * POST /api/users/:userId/friends/:friendId: Add a user to the friend list of another user.
 * DELETE /api/users/:userId/friends/:friendId: Remove a user from the friend list.
 ## Walkthrough Video
-Link to Walkthrough Video
+[Link to Walkthrough Video](https://drive.google.com/file/d/1gQ_63tq-7oWZ35Lb_kC3fnxiUWJp5BA4/view)
 
 
 ## Technologies Used
@@ -43,3 +43,5 @@ Link to Walkthrough Video
 * Mongoose ODM
 
 ## Contact
+* GitHub: https://github.com/ssherp/
+* Email: ssherpa89@gmail.com
